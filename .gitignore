@@ -1,0 +1,16 @@
+# Dane
+*.csv
+*.txt
+*.zip
+
+# Dokumentacja laboratoryjna
+*.pdf
+
+# Obsidian
+.obsidian/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
