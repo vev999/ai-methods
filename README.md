@@ -107,5 +107,5 @@ Sprawdza czy wartości każdej cechy mają rozkład normalny (kształt dzwonu). 
 | sulphates | 0.8330 | ~0.000000 | NIE |
 | alcohol | 0.9288 | ~0.000000 | NIE |
 
-Żadna z cech nie ma rozkładu normalnego (p < 0.05 dla wszystkich). Oznacza to, że metody zakładające normalność rozkładu (np. LDA, naiwny klasyfikator Bayesa z założeniem Gaussa) mogą dawać gorsze wyniki. Wskazane jest stosowanie metod nieparametrycznych lub odpornych na ten warunek.
+
 
