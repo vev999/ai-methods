@@ -63,25 +63,25 @@ Zbiór jest silnie niezbalansowany — klasy 5 i 6 stanowią łącznie ponad 82%
 
 Rysuje 12 wykresów słupkowych (po jednym na każdą cechę) które pokazują jak rozłożone są wartości każdej cechy — czyli czy większość win ma niską, średnią czy wysoką kwasowość, alkohol itd. Ostatni wykres pokazuje rozkład ocen jakości. Zapisuje wynik do pliku PNG.
 
-![[2_histogramy.png]]
+![histogramy](2_histogramy.png)
 ---
 
 #### Kod 3 — Macierz korelacji
 
 Oblicza i rysuje macierz 12×12 gdzie każda komórka pokazuje jak silnie dwie cechy są ze sobą powiązane. Czerwony kolor oznacza silną korelację dodatnią, niebieski ujemną. Pozwala wykryć np. że dwie cechy mówią praktycznie to samo.
-![[3_macierz_korelacji.png]]
+![macierz korelacji](3_macierz_korelacji.png)
 ---
 
 #### Kod 4 — Istotność cech (F-score)
 
 Sprawdza które cechy mają największy wpływ na ocenę jakości wina używając testu F. Wypisuje ranking cech od najważniejszej do najmniej ważnej oraz rysuje wykres słupkowy — niebieski słupek oznacza cechę istotną statystycznie, szary nieistotną.
-![[4_istotnosc_fclassif.png]]
+![istotność cech](4_istotnosc_fclassif.png)
 ---
 
 #### Kod 5 — Korelacja Pearsona z quality
 
 Oblicza jak każda cecha jest powiązana z oceną jakości i w którą stronę. Zielony słupek oznacza że im więcej tej cechy tym lepsza jakość (np. alkohol), czerwony że im więcej tym gorsza (np. lotna kwasowość). Cechy posortowane są od najsilniejszego powiązania.
-![[5_pearson.png]]
+![korelacja Pearsona](5_pearson.png)
 ---
 
 #### Kod 6 — Test Shapiro-Wilka
