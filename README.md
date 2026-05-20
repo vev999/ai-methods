@@ -69,6 +69,7 @@ Rysuje 12 wykresów słupkowych (po jednym na każdą cechę) które pokazują j
 #### Kod 3 — Macierz korelacji
 
 Oblicza i rysuje macierz 12×12 gdzie każda komórka pokazuje jak silnie dwie cechy są ze sobą powiązane. Czerwony kolor oznacza silną korelację dodatnią, niebieski ujemną. Pozwala wykryć np. że dwie cechy mówią praktycznie to samo.
+
 ![macierz korelacji](3_macierz_korelacji.png)
 ---
 
