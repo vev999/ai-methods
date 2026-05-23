@@ -84,4 +84,7 @@ Interpretaja wyników:
 
 Zgodnie z oczekiwaniami normalizacja pozytywnie wpłyneła na KNN zwiększając jego dokładność w każdej metryce. Niemniej jednak, KNN nadal osiąga najgorze wyniki, co jest skutkiem zbyt dużej ilości cech, przy 11 zbyt wiele punktów jest za blisko siebie przez co dokładność KNN maleje. Niezmiennie najlepiej radzi sobie Decision Tree, co wynika z tego, że podczas uczenia klasyfikator ten sam odnajduje istotność cech, co w przypadku tego zbioru ma duże znaczenie (wykazała to analiza istoności cech).
 
-Wyniki z 
+Jako, że wyniki po normalizacji były generalnie rzecz biorac lepsze, to dalsze testy kontynuowalismy na znormalizowanych danych
+
+Wyniki z clfSamplingComparision.py
+
