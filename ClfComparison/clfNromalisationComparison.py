@@ -1,11 +1,12 @@
-import  numpy                        as np
-from    scipy.stats                  import wilcoxon
-from    tabulate                     import tabulate
-from    sklearn.naive_bayes          import GaussianNB
-from    sklearn.neighbors            import KNeighborsClassifier
-from    sklearn.tree                 import DecisionTreeClassifier
-from    sklearn.model_selection      import RepeatedStratifiedKFold
-from    sklearn.metrics              import confusion_matrix, balanced_accuracy_score, accuracy_score, f1_score
+import  numpy                       as np
+from    scipy.stats                 import wilcoxon
+from    tabulate                    import tabulate
+from    sklearn.naive_bayes         import GaussianNB
+from    sklearn.preprocessing       import StandardScaler
+from    sklearn.neighbors           import KNeighborsClassifier
+from    sklearn.tree                import DecisionTreeClassifier
+from    sklearn.model_selection     import RepeatedStratifiedKFold
+from    sklearn.metrics             import confusion_matrix, balanced_accuracy_score, accuracy_score, f1_score
 
 np.set_printoptions(precision=3, suppress=True)
 
@@ -30,15 +31,20 @@ significant = False
 # Score[classificator, metric, fold]
 score = np.zeros(shape=(len(clfs), len(metrics), n_folds)) 
 
-# First we need to test how accurate each classificator is on its own
+# Test with data normalization - utilizing StandardScaler
+scaler = StandardScaler()
 
 for fold, (train_index, test_index) in enumerate(rsfk.split(X=X, y=y)):
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
 
+    scaler.fit(X=X_train)
+    X_train_scaled = scaler.transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
     for clf_index, clf in enumerate(clfs):
-        clf.fit(X=X_train, y=y_train)
-        y_pred = clf.predict(X_test)
+        clf.fit(X=X_train_scaled, y=y_train)
+        y_pred = clf.predict(X_test_scaled)
 
         for metric_index, metric in enumerate(metrics): 
             if metric == f1_score:
