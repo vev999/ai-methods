@@ -1,13 +1,36 @@
-Plan:
+# Wine Quality Classification — Eksperyment porównawczy
 
-1. Przetestujemy kilka róznich klasyfikatorów i porównamy ich skuteczność między sobą 
-2. Każdy klasyfikator potem porówanamy po odpowiednim dostosowaniu parametrów (w zależności od ich wartości, pozytywnej, negatwnej itp.)
+## Opis projektu
 
-Porównujemy klasyfikatory GNB, KNN i DT. Macierz konfuzji i test Wilxocona zaprezetentujemy dla baseline i najlepszego wariantu
+Projekt porównuje skuteczność trzech klasyfikatorów (GNB, KNN, DT) na zbiorze winequality-red.csv.
+Zbiór zawiera 1599 próbek wina opisanych 11 cechami fizykochemicznymi, a zmienną docelową
+jest subiektywna ocena jakości w skali 3–8. Zbiór jest silnie niezbalansowany — klasy 5 i 6
+stanowią łącznie ponad 82% próbek.
 
-W pliku normalizationBaselineComp.py prezentowane są wyniki klasyfkatorów na surowych danych oraz po normalizacji. Dodatkowo, porównano w nim za pomocą testu Wilcoxona czy różnice między nimi są istotne statystycznie. Później - w pliku clfSamplingComparision.py - na danych znormalizowanych (które okazały się uzyskiwać lepsze wyniki niż nieznormalizowne) przeprowadziliśmy eksperyment w którym sprawdzono wpływ trzech metod samplingu (Random Over Sampling, Random Under Sampling i SMOTE) na dokładność klkasyfikatorów. Na końcu w pliku normalizationSelectKBest.py na znormalizowaychy danych (na nich klasyfikatory uzyskały dotycgczas najdokładniejsze wyniki) sprawdziliśmy jak na dokłafnośc klasyfikatorów wpłynie SelectKBest z parametrem K=6 (parametr został dobrany z uwzględnieniem diagramu istotności cech w którym widać, że 6 cech jest najbardziej znaczących przy znikomym wpływie pozosyałych 5).
+## Metryki oceny
 
-Porównamy za pomocą metryk - BAC, F1-score macro i Confusion matrix. Ponadto wykonano test 
+Wyniki porównywane są za pomocą trzech metryk:
+- **F1-score macro** — główna metryka, traktuje każdą klasę równo niezależnie od liczebności
+- **Balanced Accuracy (BAC)** — pomocnicza, neutralizuje efekt dominacji klas 5 i 6
+- **Accuracy (AC)** — kontekstowa, pokazuje jak myląca jest przy niezbalansowanym zbiorze
+- **Confusion matrix** — diagnostyczna, pokazuje gdzie konkretnie modele się mylą
+
+Istotność statystyczna różnic między wariantami sprawdzana jest testem Wilcoxona (α = 0.05),
+który jest właściwy dla danych nieparametrycznych (brak rozkładu normalnego potwierdzony
+testem Shapiro-Wilka).
+
+Wszystkie eksperymenty przeprowadzono przy użyciu RepeatedStratifiedKFold
+(n_splits=5, n_repeats=10), co daje 50 foldów na klasyfikator.
+
+---
+
+## Eksperymenty
+
+### 1. Baseline vs Normalizacja (`normalizationBaselineComp.py`)
+
+Porównanie klasyfikatorów na surowych danych oraz po zastosowaniu StandardScaler.
+
+**Wyniki baseline:**
 
 Wariant: Baseline
 Confusion matrix GNB:
@@ -80,15 +103,23 @@ GNB: normalization is not  significantly different than baseline.
 KNN: normalization is  significantly different than baseline.
 DT: normalization is not  significantly different than baseline.
 
-Interpretaja wyników:
+**Wnioski:**
+Na surowych danych najlepiej poradził sobie DT, najgorzej KNN. Jest to oczekiwany wynik —
+KNN opiera się na odległościach w przestrzeni cech, przez co jest szczególnie wrażliwy na
+niezbalansowane skale cech. Normalizacja istotnie statystycznie poprawiła wyniki wyłącznie
+dla KNN, co potwierdza tę zależność. Dla GNB i DT różnica nie jest istotna statystycznie,
+co jest zgodne z tym że algorytmy te są niezmiennicze na skalowanie.
 
-Na "surowych" danych najlepiej poradził sobie klasyfikator Decision Tree osiągając najwyższe wyniki w każdej z trzech metryk. Najgorszy natomiast był klasyfikator KNN co jest oczzekiwanym rezultatem jako, że jest to klasyfikator najbardziej podatny na niezbalansowane zbiory danych. Z macierzy konfuzji można zaobserwować, że najczęściej mylonymi klasami są 5 i 6 (co również jest oczekiwanym rezultatem ze względu na to, że zbiór jest niezbalansowany i jest tych klas najwięcej), natomiast klasy 3 i 8 (najmniej liczne) są najrzadziej poprawnie rozpoznawanymi klasami. Najlepiej rozpoznawanymi klasami są klasy 5 i 6 a najmniej klasa nr. 3. W celu poprawienia wyników zastosujemy metody normalizacji i samplingu danych, tak aby zbalansować niezbalansowany zbiór oraz "wyrównać" odległości między próbkami dla poprawy KNN. 
-Zgodnie z oczekiwaniami normalizacja pozytywnie wpłyneła na KNN zwiększając jego dokładność w każdej metryce. Niemniej jednak, KNN nadal osiąga najgorze wyniki, co jest skutkiem zbyt dużej ilości cech, przy 11 zbyt wiele punktów jest za blisko siebie przez co dokładność KNN maleje. Niezmiennie najlepiej radzi sobie Decision Tree, co wynika z tego, że podczas uczenia klasyfikator ten sam odnajduje istotność cech, co w przypadku tego zbioru ma duże znaczenie (wykazała to analiza istoności cech).
-Widać też, że normalizacją przynosi znaczącą poprawe jedynie dla KNN.
+Z macierzy konfuzji wynika że wszystkie modele najczęściej mylą klasy sąsiednie (5↔6),
+a klasy skrajne (3 i 8) są rozpoznawane najsłabiej — KNN w baseline nie rozpoznaje ich
+prawie wcale.
 
 Jako, że wyniki po normalizacji były generalnie rzecz biorac lepsze, to dalsze testy kontynuowalismy na znormalizowanych danych
 
-Wyniki z clfSamplingComparision.py
+### 2. Metody samplingu (`clfSamplingComparision.py`)
+
+Na danych znormalizowanych przetestowano trzy metody balansowania zbioru:
+Random Over Sampling (ROS), Random Under Sampling (RUS) i SMOTE.
 
 Sampling metod: ROS
           GNB              KNN              DT
@@ -187,10 +218,26 @@ Confusion matrix DT - SMOTE:
  [0.003 0.024 0.084 0.28  0.544 0.064]
  [0.    0.    0.033 0.356 0.461 0.15 ]]
 
-Interpretacja wyników:
-Żadna z metod samplingu nie polepszyła wyników klasyfikatorów. RUS osiągnął najgorsze rezultaty, co wynika z tego że najliczniejsze klasy zostały "ucięte" do rozmiaru najmniejszych, przez co model miał bardzo mało danych do uczenia się. Ciekawą obserwacją dotyczącą RUS jest fakt, że najskuteczniej zwięszył on dokładność modeli w rozpoznawaniu klas skrajnych, ale tak dużym kosztem dokładności rozpoznawania klas środkowych (4-7), że końcowo wyniki z tej metody samplingu są najgorsze. ROS i SMOTE również nie zwiększyły całkowitej dokładności klasyfikatorów. Może to wynikać z tego, że zarówno SMOTE jak i ROS działają na zasadzie dodawania syntetycznych próbek na podstawie istniejących już - problem jest taki, że próbek klasy 3 jest bardzo mało i są one w "jednym miejscu" więc dodanie wiecej próbek w tym miejscu nie zmienia dokładności modelu.
+**Wnioski:**
+Żadna metoda samplingu nie poprawiła wyników względem samej normalizacji. RUS osiągnął
+najgorsze wyniki — usunięcie próbek klas dominujących sprowadza zbiór treningowy do
+rozmiaru najmniejszej klasy (10 próbek), co drastycznie ogranicza ilość danych do uczenia.
 
-Dodanie SelestKBest, k=6 - wybór 6 cech wynika z analizy istotności w którym było widać, że tylko 6 z 11 cech miało znaczący wpływ.
+ROS i SMOTE nie przyniosły poprawy pomimo wyrównania liczebności klas. Wynika to
+z fundamentalnego problemu tego zbioru — klasy nakładają się w przestrzeni cech.
+Wino klasy 5 i klasy 6 mają zbliżone parametry fizykochemiczne, a oceny sommelierów
+są subiektywne. Syntetyczne próbki generowane przez SMOTE i ROS lądują w obszarach
+gdzie już istnieją próbki innych klas, co zwiększa szum zamiast rozdzielać klasy.
+
+Ciekawą obserwacją jest to że RUS poprawił rozpoznawanie klas skrajnych (3 i 8)
+kosztem drastycznego pogorszenia klas środkowych — co potwierdza tezę o nakładaniu się
+klas, nie o niezbalansowaniu jako głównym problemie.
+
+### 3. Selekcja cech — SelectKBest (`normalizationSelectKBest.py`)
+
+Na danych znormalizowanych przetestowano SelectKBest z k=6. Wartość k dobrano
+na podstawie wcześniejszej analizy istotności cech (F-score), z której wynika że
+6 spośród 11 cech ma znaczący wpływ na jakość wina, a pozostałe 5 ma znikomy wpływ.
 
 Wariant: SelectKBest
 Confusion matrix GNB:
@@ -263,9 +310,25 @@ GNB: SelectKBest is not significantly different than plain normalization.
 KNN: SelectKBest is significantly different than plain normalization.
 DT: SelectKBest is not significantly different than plain normalization.
 
-Interpretacja wyników:
-Ze wszystkich przeprowadzonych eskperymentów największą dokładnością wykazuje się konfiguracja w której normalizujemy dane i wybieramy 6 najbardziej znaczących cech. Warto zauważyć, że zarówno normalizacja jak i SelectKBest znacząco wpływają jedynie na KNN, co jest spodziewanym rezultatem ze względu na działanie KNN - jako, że opiera się on na odległościach od punktów w przestrzeni cech to jest on najbardziej podatny na:
-1. niezbalansowane odległości na przestrzeni (problem ten rozwiązuje normalizacja)
-2. istotność odległości - każdą odległość uważa za równie ważną przez co nieitnotne cechy  bardziej zaburzają predykcje (ten problem rozwiązuje SelectKBest)
+**Wnioski:**
+SelectKBest poprawił wyniki wszystkich trzech klasyfikatorów, jednak istotna statystycznie
+poprawa wystąpiła tylko dla KNN. Jest to spójne z wcześniejszymi obserwacjami — KNN
+traktuje każdą cechę jako równie ważną przy obliczaniu odległości, więc usunięcie
+nieistotnych cech bezpośrednio poprawia jakość miary odległości.
 
-Decision Tree samodzielnie odkrywa które cechy są istotne podczas budowania drzewa więc w tym przypadku SelectKBest nie spowodowało dużej zmiany w wyniku. Zarówno w przypadku DT jak i GNB zmiana wynik mieści się w zakresie odchylenia standardowego więc nie można wykazać bezpośredniej poprawy przewidywania w tych klasyfikatorach. 
+DT samodzielnie odkrywa istotność cech podczas budowy drzewa, więc SelectKBest
+wnosi tu minimalną zmianę. GNB korzysta na usunięciu skorelowanych cech które
+naruszają jego założenie o niezależności zmiennych, jednak efekt jest zbyt mały
+by być istotnym statystycznie.
+
+## Podsumowanie
+
+Spośród wszystkich przetestowanych konfiguracji najlepsze wyniki F1 macro osiągnął
+DT z normalizacją i SelectKBest (k=6), jednak żadna metoda nie przyniosła
+przełomowej poprawy. Główną przeszkodą jest naturalne nakładanie się klas w przestrzeni
+cech — problem wynikający z subiektywności ocen sommelierów, a nie z właściwości zbioru
+które można naprawić preprocessingiem.
+
+Z testów Wilcoxona można zauwazyć, że KNN reaguje najsilniej na każdą transformację danych 
+(normalizacja, selekcja cech), podczas gdy DT pozostaje najbardziej stabilny i osiąga 
+najlepsze wyniki niezależnie od wariantu.
