@@ -1,4 +1,14 @@
+<<<<<<< HEAD
 # Etap 2 - porównanie klasyfikatorów (normalizacja, sampling, SelectKBest)
+=======
+# Wine Quality Classification — Eksperyment porównawczy
+
+## Opis projektu
+
+Projekt porównuje skuteczność trzech klasyfikatorów (GNB, KNN, DT) na zbiorze winequality-red.csv.
+Zbiór zawiera 1599 próbek wina opisanych 11 cechami, a zmienną docelową jest quality - ocena
+jakości w skali 3–8. Zbiór jest niezbalansowany — klasy 5 i 6 stanowią łącznie ponad 82% próbek.
+>>>>>>> 266a51a2071160711a47384226ad6a0af0f11dcf
 
 ## Metryki oceny
 
