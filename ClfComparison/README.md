@@ -3,9 +3,8 @@
 ## Opis projektu
 
 Projekt porównuje skuteczność trzech klasyfikatorów (GNB, KNN, DT) na zbiorze winequality-red.csv.
-Zbiór zawiera 1599 próbek wina opisanych 11 cechami fizykochemicznymi, a zmienną docelową
-jest subiektywna ocena jakości w skali 3–8. Zbiór jest silnie niezbalansowany — klasy 5 i 6
-stanowią łącznie ponad 82% próbek.
+Zbiór zawiera 1599 próbek wina opisanych 11 cechami, a zmienną docelową jest quality - ocena
+jakości w skali 3–8. Zbiór jest niezbalansowany — klasy 5 i 6 stanowią łącznie ponad 82% próbek.
 
 ## Metryki oceny
 
@@ -15,14 +14,11 @@ Wyniki porównywane są za pomocą trzech metryk:
 - **Accuracy (AC)** — kontekstowa, pokazuje jak myląca jest przy niezbalansowanym zbiorze
 - **Confusion matrix** — diagnostyczna, pokazuje gdzie konkretnie modele się mylą
 
-Istotność statystyczna różnic między wariantami sprawdzana jest testem Wilcoxona (α = 0.05),
-który jest właściwy dla danych nieparametrycznych (brak rozkładu normalnego potwierdzony
-testem Shapiro-Wilka).
+Istotność statystyczna różnic między wariantami sprawdzana jest testem Wilcoxona (dla alphy = 0.05),
+ze względu na brak rozkładu normalnego w danych.
 
 Wszystkie eksperymenty przeprowadzono przy użyciu RepeatedStratifiedKFold
 (n_splits=5, n_repeats=10), co daje 50 foldów na klasyfikator.
-
----
 
 ## Eksperymenty
 
@@ -106,15 +102,14 @@ DT: normalization is not  significantly different than baseline.
 **Wnioski:**
 Na surowych danych najlepiej poradził sobie DT, najgorzej KNN. Jest to oczekiwany wynik —
 KNN opiera się na odległościach w przestrzeni cech, przez co jest szczególnie wrażliwy na
-niezbalansowane skale cech. Normalizacja istotnie statystycznie poprawiła wyniki wyłącznie
-dla KNN, co potwierdza tę zależność. Dla GNB i DT różnica nie jest istotna statystycznie,
-co jest zgodne z tym że algorytmy te są niezmiennicze na skalowanie.
+niezbalansowane skale cech. KNN jest jedynym klasyfikatorem w którym można zaobserwować
+statystycznie znaczącą rożnice po normalizacji a bez niej. Dla DT i GNB nie zaobsrwowano
+znaczącej różnicy, co wynika ze specyfikacji tych klasyfikatorów.
 
-Z macierzy konfuzji wynika że wszystkie modele najczęściej mylą klasy sąsiednie (5↔6),
-a klasy skrajne (3 i 8) są rozpoznawane najsłabiej — KNN w baseline nie rozpoznaje ich
-prawie wcale.
+Z macierzy konfuzji wynika że wszystkie modele najczęściej mylą klasy 5 i 6, a klasy skrajne 
+(3 i 8) są rozpoznawane najsłabiej — KNN nie rozpoznaje ich prawie wcale.
 
-Jako, że wyniki po normalizacji były generalnie rzecz biorac lepsze, to dalsze testy kontynuowalismy na znormalizowanych danych
+Jako, że wyniki po normalizacji były lepsze, to dalsze testy kontynuowalismy na znormalizowanych danych
 
 ### 2. Metody samplingu (`clfSamplingComparision.py`)
 
@@ -223,21 +218,22 @@ Confusion matrix DT - SMOTE:
 najgorsze wyniki — usunięcie próbek klas dominujących sprowadza zbiór treningowy do
 rozmiaru najmniejszej klasy (10 próbek), co drastycznie ogranicza ilość danych do uczenia.
 
-ROS i SMOTE nie przyniosły poprawy pomimo wyrównania liczebności klas. Wynika to
-z fundamentalnego problemu tego zbioru — klasy nakładają się w przestrzeni cech.
-Wino klasy 5 i klasy 6 mają zbliżone parametry fizykochemiczne, a oceny sommelierów
-są subiektywne. Syntetyczne próbki generowane przez SMOTE i ROS lądują w obszarach
-gdzie już istnieją próbki innych klas, co zwiększa szum zamiast rozdzielać klasy.
+ROS i SMOTE nie przyniosły poprawy pomimo wyrównania liczebności klas. Może to wynikać z 
+tego, że wina różnych klas mają te same cechy - wobec tego dodanie kolejnych w tej samej przestrzeni 
+nie poduje zwiększenia dokładności modelu, a zwiększenie szumu danych. Dodatkowo, probllem jest w
+tym, że jakość wina zależy od gustu ludzi je oceniających, czego nie można ująć w danych. Fizykochemiczne
+parametry win mogą tylko z przybliżeniem określić jego jakość.
 
 Ciekawą obserwacją jest to że RUS poprawił rozpoznawanie klas skrajnych (3 i 8)
-kosztem drastycznego pogorszenia klas środkowych — co potwierdza tezę o nakładaniu się
-klas, nie o niezbalansowaniu jako głównym problemie.
+kosztem drastycznego pogorszenia klas środkowych. Potwierdza to tezę o nakładaniu się cech win o różnych
+klasach - po wyrównaniu liczby próbek w przestrzeni wszystkie próbki są na tyle blisko siebie, że model 
+z łatwością je myli.
 
 ### 3. Selekcja cech — SelectKBest (`normalizationSelectKBest.py`)
 
 Na danych znormalizowanych przetestowano SelectKBest z k=6. Wartość k dobrano
 na podstawie wcześniejszej analizy istotności cech (F-score), z której wynika że
-6 spośród 11 cech ma znaczący wpływ na jakość wina, a pozostałe 5 ma znikomy wpływ.
+6 spośród 11 cech ma znaczący wpływ na jakość wina, a pozostałe 5 znikomy.
 
 Wariant: SelectKBest
 Confusion matrix GNB:
@@ -311,24 +307,22 @@ KNN: SelectKBest is significantly different than plain normalization.
 DT: SelectKBest is not significantly different than plain normalization.
 
 **Wnioski:**
-SelectKBest poprawił wyniki wszystkich trzech klasyfikatorów, jednak istotna statystycznie
-poprawa wystąpiła tylko dla KNN. Jest to spójne z wcześniejszymi obserwacjami — KNN
-traktuje każdą cechę jako równie ważną przy obliczaniu odległości, więc usunięcie
-nieistotnych cech bezpośrednio poprawia jakość miary odległości.
+SelectKBest poprawił wyniki wszystkich trzech klasyfikatorów, jednak poprawa istotna 
+statystycznie wystąpiła tylko dla KNN. Jest to oczekiwany efekt ze względu na zasadę 
+działania klasyfikatora KNN - traktuje każdą cechę jako równie ważną przy obliczaniu 
+odległości, więc usunięcie nieistotnych cech bezpośrednio poprawia jakość miary odległości.
 
 DT samodzielnie odkrywa istotność cech podczas budowy drzewa, więc SelectKBest
-wnosi tu minimalną zmianę. GNB korzysta na usunięciu skorelowanych cech które
-naruszają jego założenie o niezależności zmiennych, jednak efekt jest zbyt mały
-by być istotnym statystycznie.
+wnosi tu minimalną zmianę. Skuteczność GNB wzrosła bardziej niż DT, ale nie istotnie statystycznie. 
 
 ## Podsumowanie
 
 Spośród wszystkich przetestowanych konfiguracji najlepsze wyniki F1 macro osiągnął
 DT z normalizacją i SelectKBest (k=6), jednak żadna metoda nie przyniosła
-przełomowej poprawy. Główną przeszkodą jest naturalne nakładanie się klas w przestrzeni
-cech — problem wynikający z subiektywności ocen sommelierów, a nie z właściwości zbioru
-które można naprawić preprocessingiem.
-
+przełomowej poprawy. Główną przeszkodą jest nakładanie się klas w przestrzeni
+cech — co wynika z subiektywnej oceny jakości win, które zależą głownie od smaku wina
+(którego nie da się ująć w danych liczbowych) a nie od samych cech fizycznochemicznych. 
+ 
 Z testów Wilcoxona można zauwazyć, że KNN reaguje najsilniej na każdą transformację danych 
 (normalizacja, selekcja cech), podczas gdy DT pozostaje najbardziej stabilny i osiąga 
 najlepsze wyniki niezależnie od wariantu.
