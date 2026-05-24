@@ -208,8 +208,8 @@ Confusion matrix DT - SMOTE:
  [0.013 0.052 0.204 0.56  0.143 0.029]
  [0.003 0.024 0.084 0.28  0.544 0.064]
  [0.    0.    0.033 0.356 0.461 0.15 ]]
-```
 
+```
 **Wnioski:**
 Żadna metoda samplingu nie poprawiła wyników względem samej normalizacji. RUS osiągnął
 najgorsze wyniki — usunięcie próbek klas dominujących sprowadza zbiór treningowy do
