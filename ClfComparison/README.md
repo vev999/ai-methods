@@ -1,14 +1,4 @@
-<<<<<<< HEAD
 # Etap 2 - porównanie klasyfikatorów (normalizacja, sampling, SelectKBest)
-=======
-# Wine Quality Classification — Eksperyment porównawczy
-
-## Opis projektu
-
-Projekt porównuje skuteczność trzech klasyfikatorów (GNB, KNN, DT) na zbiorze winequality-red.csv.
-Zbiór zawiera 1599 próbek wina opisanych 11 cechami, a zmienną docelową jest quality - ocena
-jakości w skali 3–8. Zbiór jest niezbalansowany — klasy 5 i 6 stanowią łącznie ponad 82% próbek.
->>>>>>> 266a51a2071160711a47384226ad6a0af0f11dcf
 
 ## Metryki oceny
 
@@ -31,7 +21,7 @@ Wszystkie eksperymenty przeprowadzono przy użyciu RepeatedStratifiedKFold
 Porównanie klasyfikatorów na surowych danych oraz po zastosowaniu StandardScaler.
 
 **Wyniki baseline:**
-'''
+```
 Wariant: Baseline
 Confusion matrix GNB:
 [[0.11  0.38  0.41  0.1   0.    0.   ]
@@ -102,7 +92,7 @@ Wilcoxon: baseline vs normalization
 GNB: normalization is not  significantly different than baseline.
 KNN: normalization is  significantly different than baseline.
 DT: normalization is not  significantly different than baseline.
-'''
+```
 
 **Wnioski:**
 Na surowych danych najlepiej poradził sobie DT, najgorzej KNN. Jest to oczekiwany wynik —
@@ -121,6 +111,7 @@ Jako, że wyniki po normalizacji były lepsze, to dalsze testy kontynuowalismy n
 Na danych znormalizowanych przetestowano trzy metody balansowania zbioru:
 Random Over Sampling (ROS), Random Under Sampling (RUS) i SMOTE.
 
+```
 Sampling metod: ROS
           GNB              KNN              DT
 --------  ---------------  ---------------  ---------------
@@ -217,6 +208,7 @@ Confusion matrix DT - SMOTE:
  [0.013 0.052 0.204 0.56  0.143 0.029]
  [0.003 0.024 0.084 0.28  0.544 0.064]
  [0.    0.    0.033 0.356 0.461 0.15 ]]
+```
 
 **Wnioski:**
 Żadna metoda samplingu nie poprawiła wyników względem samej normalizacji. RUS osiągnął
@@ -240,6 +232,7 @@ Na danych znormalizowanych przetestowano SelectKBest z k=6. Wartość k dobrano
 na podstawie wcześniejszej analizy istotności cech (F-score), z której wynika że
 6 spośród 11 cech ma znaczący wpływ na jakość wina, a pozostałe 5 znikomy.
 
+```
 Wariant: SelectKBest
 Confusion matrix GNB:
 [[0.13  0.17  0.52  0.18  0.    0.   ]
@@ -310,6 +303,7 @@ Wilcoxon: baseline vs normalization
 GNB: SelectKBest is not significantly different than plain normalization.
 KNN: SelectKBest is significantly different than plain normalization.
 DT: SelectKBest is not significantly different than plain normalization.
+```
 
 **Wnioski:**
 SelectKBest poprawił wyniki wszystkich trzech klasyfikatorów, jednak poprawa istotna 
